@@ -1,0 +1,76 @@
+name: Deploy to VPS
+
+# Auto-deploy: every push to main typechecks, builds, then deploys on the server.
+# Can also be run manually from the Actions tab (workflow_dispatch).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never run two deploys at once; let an in-progress one finish.
+concurrency:
+  group: rogerraker-vps-deploy
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Typecheck and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx tsc --noEmit
+      - run: npx eslint src
+      - run: npm run build
+        env:
+          # Only needs to be set; nothing queries the database at build time.
+          DATABASE_URL: postgresql://localhost:5432/roger_raker
+          AUTH_SECRET: build-time-placeholder
+
+  deploy:
+    name: Deploy on the server
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Deploy over SSH
+        env:
+          # Repository secret VPS_SSH_KEY holds the base64 of the deploy private
+          # key on ONE line, so paste mangling cannot corrupt it.
+          SSH_KEY_B64: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s' "$SSH_KEY_B64" | tr -d '[:space:]' | base64 -d > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          if ! ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null 2>&1; then
+            echo "::error::Secret VPS_SSH_KEY is missing or is not valid base64 of the deploy key."
+            exit 1
+          fi
+          # Pinned server host key, so there is no trust-on-first-use.
+          echo '72.60.208.52 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIER93Md6guE7Rq6PyqMydp5SDQrMKLFLAhQtlA6C44lh' > ~/.ssh/known_hosts
+          # The key is locked to this app's deploy script server-side, so simply
+          # connecting runs it and streams the output back into this log.
+          for attempt in 1 2 3; do
+            rc=0
+            ssh -T -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+                -o ConnectTimeout=20 deploy@72.60.208.52 || rc=$?
+            if [ "$rc" -eq 0 ]; then
+              exit 0
+            fi
+            # 255 means ssh itself failed to connect or authenticate. Anything
+            # else came from the remote deploy script, so do not retry.
+            if [ "$rc" -ne 255 ]; then
+              echo "::error::Remote deploy script failed (exit $rc)."
+              exit "$rc"
+            fi
+            echo "::warning::SSH connection failed (attempt $attempt of 3), retrying in 30s."
+            sleep 30
+          done
+          echo "::error::Could not reach the VPS over SSH after 3 attempts."
+          exit 255

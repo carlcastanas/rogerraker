@@ -1,0 +1,31 @@
+[Unit]
+Description=Roger Raker portfolio and storefront (Next.js)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+# Runs as the deploy user so everything under .next is deploy-owned and the
+# deploy script never needs a move-aside to replace a build.
+User=deploy
+Group=deploy
+WorkingDirectory=/srv/rogerraker
+EnvironmentFile=/srv/rogerraker/.env.production
+Environment=NODE_ENV=production
+Environment=PORT=3100
+ExecStart=/usr/bin/npm run start -- --port 3100
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=rogerraker
+
+# Light hardening. The app only needs its own directory.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/srv/rogerraker
+
+[Install]
+WantedBy=multi-user.target
