@@ -139,19 +139,39 @@ else
 fi
 
 # ----------------------------------------------------------------- 8. TLS ----
+# Preferred: a Cloudflare Origin Certificate at /etc/ssl/cloudflare/. It needs
+# no ACME challenge, so the orange cloud can stay on, and it lasts 15 years.
+# Falls back to Let's Encrypt if no origin certificate has been installed.
 say "TLS certificate"
-if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-    echo "    certificate already present"
-elif curl -fsS -o /dev/null --max-time 10 "http://127.0.0.1:$PORT/"; then
-    echo "    requesting a certificate from Let's Encrypt"
+CF_CRT=/etc/ssl/cloudflare/$DOMAIN.pem
+CF_KEY=/etc/ssl/cloudflare/$DOMAIN.key
+if [ -s "$CF_CRT" ] && [ -s "$CF_KEY" ]; then
+    echo "    Cloudflare origin certificate found, enabling the HTTPS block"
+    chmod 600 "$CF_KEY"
+    sed -E "s/^([[:space:]]*server_name).*/\1 $DOMAIN www.$DOMAIN;/" \
+        "$APP_DIR/deploy/nginx-$APP-ssl.conf" >> "/etc/nginx/sites-available/$APP"
+    if nginx -t; then
+        systemctl reload nginx
+        echo "    HTTPS live. Set Cloudflare SSL/TLS to Full (strict)."
+    else
+        warn "nginx rejected the HTTPS block; leaving HTTP only."
+    fi
+elif [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+    echo "    Let's Encrypt certificate already present"
+elif [ "${SKIP_CERTBOT:-0}" = "1" ]; then
+    echo "    skipped (SKIP_CERTBOT=1)"
+elif command -v certbot >/dev/null && curl -fsS -o /dev/null --max-time 10 "http://127.0.0.1:$PORT/"; then
+    echo "    no origin certificate, trying Let's Encrypt"
     if certbot --nginx -n --agree-tos --redirect \
         -m "${ADMIN_EMAIL:-admin@$DOMAIN}" -d "$DOMAIN" -d "www.$DOMAIN"; then
         echo "    issued"
     else
-        warn "certbot failed. This is almost always Cloudflare's proxy answering"
-        warn "the HTTP-01 challenge instead of this server."
-        warn "Fix: set both A records to 'DNS only' (grey cloud) in Cloudflare,"
-        warn "re-run this script, then turn the orange cloud back on."
+        warn "certbot failed, which is usually Cloudflare answering the HTTP-01"
+        warn "challenge instead of this server. Two ways out:"
+        warn "  a) SSL/TLS > Origin Server > Create Certificate, save it to"
+        warn "     $CF_CRT and $CF_KEY, then re-run this script. Best option."
+        warn "  b) Set both A records to 'DNS only', re-run, then re-enable the proxy."
+        warn "Until then set Cloudflare SSL/TLS to Flexible so the site loads."
     fi
 fi
 
@@ -164,7 +184,7 @@ printf '  local http: %s\n' "$(curl -s -o /dev/null -w '%{http_code}' --max-time
 printf '  projects  : %s\n' "$(sudo -u postgres psql -tAd $DB_NAME -c 'SELECT count(*) FROM projects' 2>/dev/null || echo '?')"
 printf '  products  : %s\n' "$(sudo -u postgres psql -tAd $DB_NAME -c 'SELECT count(*) FROM products' 2>/dev/null || echo '?')"
 printf '  admins    : %s\n' "$(sudo -u postgres psql -tAd $DB_NAME -c 'SELECT count(*) FROM admin_users' 2>/dev/null || echo '?')"
-printf '  tls       : %s\n' "$([ -d /etc/letsencrypt/live/$DOMAIN ] && echo 'certificate installed' || echo 'none yet')"
+printf '  tls       : %s\n' "$([ -s /etc/ssl/cloudflare/$DOMAIN.pem ] && echo 'cloudflare origin cert' || { [ -d /etc/letsencrypt/live/$DOMAIN ] && echo "let's encrypt" || echo 'none yet, use Flexible'; })"
 
 cat <<'DONE'
 
