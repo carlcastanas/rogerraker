@@ -29,7 +29,7 @@ git fetch --prune origin
 git reset --hard "origin/$BRANCH"
 
 echo "==> Installing dependencies"
-npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+npm ci --include=dev --no-audit --no-fund || npm install --include=dev --no-audit --no-fund
 
 # Apply the schema only when the database is still empty. Existing rows are
 # never touched; migrations after the first release go in db/migrations/ and are

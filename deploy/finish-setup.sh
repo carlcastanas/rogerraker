@@ -24,6 +24,22 @@ say() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 warn() { printf '\033[33m!! %s\033[0m\n' "$*"; }
 
 # ---------------------------------------------------------------- 1. code ----
+say "Port check"
+if ss -ltn 2>/dev/null | grep -q ":$PORT "; then
+    OWNER=$(ss -ltnp 2>/dev/null | grep ":$PORT " | head -1)
+    if systemctl is-active --quiet "$APP"; then
+        echo "    $PORT already served by $APP, fine"
+    else
+        warn "Port $PORT is in use by something else:"
+        warn "  $OWNER"
+        warn "Pick a free port and change it in deploy/rogerraker.service,"
+        warn "deploy/nginx-rogerraker*.conf and scripts/deploy.sh."
+        exit 1
+    fi
+else
+    echo "    $PORT is free"
+fi
+
 say "Application directory"
 if [ ! -d "$APP_DIR/.git" ]; then
     echo "    cloning $REPO"
@@ -74,6 +90,16 @@ fi
 [ -n "$NPM_BIN" ] || { warn "npm not found. Install Node before re-running."; exit 1; }
 NODE_DIR=$(dirname "$NPM_BIN")
 echo "    using npm at $NPM_BIN"
+
+# Next 16 needs Node 20.9 or newer. Catch it here rather than mid-build.
+NODE_MAJOR=$("$NODE_DIR/node" -v 2>/dev/null | sed 's/^v\([0-9]*\).*/\1/')
+echo "    node $("$NODE_DIR/node" -v 2>/dev/null)"
+if [ -n "$NODE_MAJOR" ] && [ "$NODE_MAJOR" -lt 20 ]; then
+    warn "Node $NODE_MAJOR is too old for Next.js 16, which needs 20.9 or newer."
+    warn "josh-mojica may be pinned to an older Node, so install a newer one"
+    warn "alongside it rather than replacing it, then re-run this script."
+    exit 1
+fi
 
 sed -e "s#^ExecStart=.*#ExecStart=$NPM_BIN run start -- --port $PORT#" \
     -e "s#^Environment=PORT=.*#Environment=PORT=$PORT\nEnvironment=PATH=$NODE_DIR:/usr/local/bin:/usr/bin:/bin#" \
