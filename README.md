@@ -120,12 +120,26 @@ unit on its own port, and its own nginx server block.
 | Port | 3000 | 3100 |
 | Database | Prisma/Postgres | Postgres, `roger_raker` |
 
-### One-time server setup
+### Server setup
+
+`deploy/finish-setup.sh` does the whole server side in one run and is safe to
+re-run: every step checks what already exists and only fills in the gaps.
 
 ```bash
-scp deploy/bootstrap-vps.sh root@72.60.208.52:/tmp/
-ssh root@72.60.208.52 'bash /tmp/bootstrap-vps.sh rogerraker.com'
+scp deploy/finish-setup.sh root@72.60.208.52:/tmp/
+ssh root@72.60.208.52 'ADMIN_EMAIL=you@example.com ADMIN_PASSWORD="a long passphrase" bash /tmp/finish-setup.sh'
 ```
+
+It clones or updates the code, creates the database and `.env.production`,
+installs the systemd unit (detecting where `npm` actually lives), writes the
+nginx block for rogerraker.com, generates the forced-command deploy key, builds
+and starts the app, loads the content, creates the admin login, requests a
+certificate, and prints a status summary plus the line to save as the
+`VPS_SSH_KEY` secret.
+
+The domain sits behind Cloudflare's proxy. `certbot` can only answer the HTTP-01
+challenge if both A records are set to **DNS only** (grey cloud) while it runs;
+turn the orange cloud back on afterwards and set SSL/TLS to **Full (strict)**.
 
 The script clones the repo, creates the database, writes `.env.production` with
 a fresh `AUTH_SECRET`, installs the systemd unit and nginx block, generates a
