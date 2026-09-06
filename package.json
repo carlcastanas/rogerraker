@@ -12,7 +12,8 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:reset": "dropdb --if-exists roger_raker && createdb roger_raker && psql -q roger_raker -f db/schema.sql && tsx scripts/seed.ts",
     "typecheck": "tsc --noEmit",
-    "create-admin": "tsx scripts/create-admin.ts"
+    "create-admin": "tsx scripts/create-admin.ts",
+    "seed:content": "tsx scripts/seed-content.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

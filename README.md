@@ -144,6 +144,22 @@ service, and health-checks it.
 `scripts/seed.ts` truncates every table, so **the deploy never seeds**. It is a
 local command only.
 
+### Putting content on a live server
+
+The deploy never seeds, because `scripts/seed.ts` truncates every table and
+invents demo orders and enquiries. To load the real catalogue onto the server:
+
+```bash
+cd /srv/rogerraker
+npm run seed:content              # adds anything missing, touches nothing else
+npm run seed:content -- --overwrite   # resets seeded rows back to the repo
+```
+
+It upserts the profile, site copy, 17 projects, and 8 products by slug. It never
+writes orders, messages, or logins, never deletes a row, and never overwrites a
+product's `sales_count`. Both seeders read the same data from
+`scripts/catalogue.ts`.
+
 ### Creating the production admin
 
 The seeded login exists only in local demo data and its password is in this
