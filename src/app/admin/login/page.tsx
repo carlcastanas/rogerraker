@@ -31,11 +31,15 @@ export default async function AdminLoginPage() {
           <LoginForm />
         </div>
 
-        <p className="mt-4 rounded-[2px] border border-stroke bg-panel px-4 py-3 text-[12px] leading-relaxed text-faint">
-          Demo build. Sign in with{" "}
-          <span className="text-muted">roger@rogerraker.com</span> and{" "}
-          <span className="tnum text-muted">Grade2026!</span>
-        </p>
+        {/* The seeded login only exists in local demo data, and its password is
+            in the public repository, so this hint must never reach production. */}
+        {process.env.NODE_ENV === "development" ? (
+          <p className="mt-4 rounded-[2px] border border-stroke bg-panel px-4 py-3 text-[12px] leading-relaxed text-faint">
+            Local demo data. Sign in with{" "}
+            <span className="text-muted">roger@rogerraker.com</span> and{" "}
+            <span className="tnum text-muted">Grade2026!</span>
+          </p>
+        ) : null}
 
         <Link
           href="/"
