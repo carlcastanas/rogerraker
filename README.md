@@ -124,7 +124,7 @@ unit on its own port, and its own nginx server block.
 
 ```bash
 scp deploy/bootstrap-vps.sh root@72.60.208.52:/tmp/
-ssh root@72.60.208.52 'bash /tmp/bootstrap-vps.sh yourdomain.com'
+ssh root@72.60.208.52 'bash /tmp/bootstrap-vps.sh rogerraker.com'
 ```
 
 The script clones the repo, creates the database, writes `.env.production` with

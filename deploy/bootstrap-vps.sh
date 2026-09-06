@@ -4,7 +4,7 @@
 # joshmojica.io (72.60.208.52). Run it ONCE, as root:
 #
 #   scp deploy/bootstrap-vps.sh root@72.60.208.52:/tmp/
-#   ssh root@72.60.208.52 'bash /tmp/bootstrap-vps.sh yourdomain.com'
+#   ssh root@72.60.208.52 'bash /tmp/bootstrap-vps.sh rogerraker.com'
 #
 # It only ever creates new things: a new directory, a new database, a new
 # systemd unit on a new port, a new nginx server block, and a new deploy key.
@@ -15,7 +15,7 @@ set -euo pipefail
 
 DOMAIN="${1:-}"
 if [ -z "$DOMAIN" ]; then
-    echo "Usage: bash bootstrap-vps.sh yourdomain.com"
+    echo "Usage: bash bootstrap-vps.sh rogerraker.com"
     exit 1
 fi
 
@@ -80,8 +80,8 @@ chmod 440 "/etc/sudoers.d/$APP"
 visudo -cf "/etc/sudoers.d/$APP"
 
 echo "==> nginx server block for $DOMAIN"
-sed "s/DOMAIN_HERE/$DOMAIN/g" "$APP_DIR/deploy/nginx-rogerraker.conf" \
-    > "/etc/nginx/sites-available/$APP"
+sed -E "s/^([[:space:]]*server_name).*/\1 $DOMAIN www.$DOMAIN;/" \
+    "$APP_DIR/deploy/nginx-rogerraker.conf" > "/etc/nginx/sites-available/$APP"
 ln -sf "/etc/nginx/sites-available/$APP" "/etc/nginx/sites-enabled/$APP"
 nginx -t
 systemctl reload nginx
@@ -116,11 +116,15 @@ cat <<DONE
 
 
 2. DNS, at whoever manages $DOMAIN
-   A     @      72.60.208.52
+   A     @      72.60.208.52     (and no other A record on the apex)
    A     www    72.60.208.52
 
-   Once those resolve, come back and run:
+   If the domain is on Cloudflare, set BOTH records to "DNS only" (grey
+   cloud) before issuing the certificate, or the HTTP-01 challenge is
+   answered by Cloudflare instead of this server:
    sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN
+
+   Then turn the orange cloud back on and set SSL/TLS to Full (strict).
 
 The app is live on http://127.0.0.1:$PORT right now, and on
 http://$DOMAIN as soon as DNS points here.
