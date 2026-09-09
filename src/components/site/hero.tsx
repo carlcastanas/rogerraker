@@ -23,7 +23,7 @@ export function Hero({
     <section className="grain relative overflow-hidden">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-20 bg-gradient-to-t from-void via-void/70 to-transparent sm:h-28"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-14 bg-gradient-to-t from-void via-void/65 to-transparent sm:h-20"
       />
       {/* One restrained pool of light behind the frame */}
       <div
@@ -35,7 +35,7 @@ export function Hero({
         }}
       />
 
-      <div className="shell relative z-[2] pb-16 pt-24 md:pb-20 md:pt-28">
+      <div className="shell relative z-[2] pb-8 pt-24 md:pb-10 md:pt-28">
         <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-6">
             <div className="flex items-center gap-3">

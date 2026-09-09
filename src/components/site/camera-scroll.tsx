@@ -198,8 +198,8 @@ export function CameraScroll({ className }: { className?: string }) {
       aria-label="Camera showcase"
       className={cn(
         "relative bg-void",
-        // Enough scroll distance to see the full turn, then Films
-        reduced ? "h-auto py-10" : "h-[200svh] sm:h-[220svh] md:h-[240svh]",
+        // Sticky hugs the camera; track is only tall enough for a full scrub
+        reduced ? "h-auto py-10" : "h-[155svh] sm:h-[170svh] md:h-[185svh]",
         className
       )}
     >
@@ -217,12 +217,12 @@ export function CameraScroll({ className }: { className?: string }) {
           "relative z-[2] w-full overflow-hidden bg-void",
           reduced
             ? "flex items-center justify-center px-3 py-8"
-            : "sticky top-0 flex h-[100svh] items-center justify-center px-3 sm:px-5"
+            : "sticky top-14 flex justify-center px-3 py-4 sm:top-16 sm:px-5 sm:py-5 md:top-[4.5rem] md:py-6"
         )}
       >
-        {/* Large stage: camera fills most of the phone screen */}
-        <div className="relative flex h-[min(78svh,34rem)] w-full max-w-[min(100%,40rem)] items-center justify-center sm:h-[min(72svh,28rem)] sm:max-w-[min(92vw,44rem)] md:h-auto md:max-w-[52rem] md:aspect-[16/9]">
-          <div className="relative h-full w-full md:absolute md:inset-0">
+        {/* Content-sized stage — no full-viewport black void around the camera */}
+        <div className="relative aspect-[16/9] w-full max-w-[min(96vw,36rem)] sm:max-w-[min(92vw,42rem)] md:max-w-[48rem]">
+          <div className="absolute inset-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={POSTER_SRC}
