@@ -195,7 +195,7 @@ export function CameraScroll({ className }: { className?: string }) {
       aria-label="Camera showcase"
       className={cn(
         "relative bg-void",
-        reduced ? "h-auto py-10" : "h-[170vh] sm:h-[185vh] md:h-[200vh]",
+        reduced ? "h-auto py-10" : "h-[118vh] sm:h-[150vh] md:h-[180vh]",
         className
       )}
     >
@@ -207,7 +207,7 @@ export function CameraScroll({ className }: { className?: string }) {
       {/* Soft handoff into Films */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-28 bg-gradient-to-t from-void via-void/75 to-transparent md:h-36"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-16 bg-gradient-to-t from-void via-void/75 to-transparent sm:h-24 md:h-36"
       />
 
       <div
@@ -215,7 +215,7 @@ export function CameraScroll({ className }: { className?: string }) {
           "relative z-[2] flex flex-col items-center px-5",
           reduced
             ? "py-6"
-            : "sticky top-16 justify-start pt-2 pb-6 md:top-[4.5rem] md:pt-3 md:pb-8"
+            : "sticky top-14 justify-start pt-1 pb-3 sm:top-16 sm:pt-2 sm:pb-6 md:top-[4.5rem] md:pt-3 md:pb-8"
         )}
       >
         <div className="relative z-[2] w-full max-w-[min(96vw,40rem)] sm:max-w-[min(94vw,48rem)] md:max-w-[56rem]">
