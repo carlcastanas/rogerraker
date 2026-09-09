@@ -20,7 +20,11 @@ export function Hero({
   const name = profile?.full_name ?? "Roger Raker";
 
   return (
-    <section className="grain relative overflow-hidden border-b border-stroke">
+    <section className="grain relative overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-16 bg-gradient-to-t from-void/80 to-transparent md:h-24"
+      />
       {/* One restrained pool of light behind the frame */}
       <div
         aria-hidden="true"

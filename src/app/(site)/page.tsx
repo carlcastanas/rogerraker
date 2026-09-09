@@ -1,5 +1,6 @@
 import { AboutSection } from "@/components/site/about-section";
 import { ContactSection } from "@/components/site/contact-section";
+import { CameraScroll } from "@/components/site/camera-scroll";
 import { FilmsSection } from "@/components/site/films-section";
 import { Hero } from "@/components/site/hero";
 import { StoreSection } from "@/components/site/store-section";
@@ -33,6 +34,7 @@ export default async function HomePage() {
   return (
     <>
       <Hero content={content} profile={profile} />
+      <CameraScroll />
       <FilmsSection
         content={content.work}
         projects={pickSix(projects)}
