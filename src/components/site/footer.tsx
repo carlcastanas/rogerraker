@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Lock, Mail } from "lucide-react";
 import { getProfile, getSiteContent } from "@/lib/queries";
@@ -36,10 +37,16 @@ export async function SiteFooter() {
       <div className="shell py-16 md:py-20">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-5">
-            {/* The name, set as a graphic element rather than a logo lockup. */}
-            <p className="display text-[clamp(2rem,4.6vw,3.25rem)] text-ink">
-              {profile?.full_name ?? "Roger Raker"}
-            </p>
+            {/* Same stylized wordmark as SiteNav — larger lockup, one brand logo. */}
+            <Link href="/" className="inline-flex" aria-label="Roger Raker, home">
+              <Image
+                src="/branding/logo-stylized-white.png"
+                alt="Roger Raker"
+                width={250}
+                height={44}
+                className="h-11 w-auto max-w-[min(100%,250px)]"
+              />
+            </Link>
             <p className="mt-4 max-w-[42ch] text-[14px] leading-[1.7] text-ink/75">
               {content.footer.tagline}
             </p>

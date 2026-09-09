@@ -105,7 +105,7 @@ export function ContactSection({ content }: { content: SiteContent["contact"] })
                 <Field label="Project type" htmlFor="contact-project-type">
                   <Select id="contact-project-type" name="project_type" defaultValue="">
                     <option value="">Pick the closest one</option>
-                    {content.project_types.map((type) => (
+                    {[...new Set(content.project_types.filter(Boolean))].map((type) => (
                       <option key={type} value={type}>
                         {type}
                       </option>
@@ -116,7 +116,7 @@ export function ContactSection({ content }: { content: SiteContent["contact"] })
                 <Field label="Budget" htmlFor="contact-budget">
                   <Select id="contact-budget" name="budget" defaultValue="">
                     <option value="">Rough range is fine</option>
-                    {content.budgets.map((budget) => (
+                    {[...new Set(content.budgets.filter(Boolean))].map((budget) => (
                       <option key={budget} value={budget}>
                         {budget}
                       </option>

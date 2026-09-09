@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
@@ -55,11 +56,17 @@ export function SiteNav() {
       <nav className="shell flex h-16 items-center justify-between gap-4 md:h-[72px]">
         <Link
           href="/"
-          className="display-tight flex items-baseline gap-2 text-[16px] text-ink"
+          className="flex shrink-0 items-center"
           aria-label="Roger Raker, home"
         >
-          <span className="h-1.5 w-1.5 translate-y-[-2px] bg-cyan" aria-hidden="true" />
-          Roger Raker
+          <Image
+            src="/branding/logo-stylized-white.png"
+            alt=""
+            width={114}
+            height={20}
+            className="h-5 w-auto"
+            priority
+          />
         </Link>
 
         <div className="hidden items-center gap-1 md:flex">

@@ -34,10 +34,10 @@ export function bool(fd: FormData, key: string) {
   return v === "true" || v === "on" || v === "1";
 }
 
-/** Newline- or comma-separated textarea into a clean array. */
+/** Newline-separated textarea into a clean array (one item per line). */
 export function list(fd: FormData, key: string) {
   return str(fd, key)
-    .split(/[\n,]/)
+    .split("\n")
     .map((s) => s.trim())
     .filter(Boolean);
 }
