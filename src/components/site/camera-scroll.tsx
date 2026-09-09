@@ -13,9 +13,9 @@ function frameSrc(i: number) {
 }
 
 /**
- * High-performance scroll-scrub between Hero and Films.
- * Pre-keyed transparent WebP frames painted to canvas (no video seek blink,
- * no runtime chromakey, no monitor chrome, no radial ring glow).
+ * Scroll-scrub camera between Hero and Films.
+ * Layout mirrors joshmojica.io ScrollSequence: tall track + sticky full-viewport
+ * stage, canvas frame paint. Camera stays contain-fit (keyed subject).
  */
 export function CameraScroll({ className }: { className?: string }) {
   const reduced = useReducedMotion();
@@ -81,13 +81,13 @@ export function CameraScroll({ className }: { className?: string }) {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
+    // contain-fit — keep the full keyed camera visible
     const scale = Math.min(pxW / frame.naturalWidth, pxH / frame.naturalHeight);
     const dw = frame.naturalWidth * scale;
     const dh = frame.naturalHeight * scale;
     const dx = (pxW - dw) / 2;
     const dy = (pxH - dh) / 2;
 
-    // Opaque clear — never leave a previous angle faintly visible under alpha
     ctx.globalCompositeOperation = "source-over";
     ctx.clearRect(0, 0, pxW, pxH);
     ctx.drawImage(frame, dx, dy, dw, dh);
@@ -195,30 +195,31 @@ export function CameraScroll({ className }: { className?: string }) {
       aria-label="Camera showcase"
       className={cn(
         "relative bg-void",
-        reduced ? "h-auto py-10" : "h-[118vh] sm:h-[150vh] md:h-[180vh]",
+        // joshmojica uses ~300vh; we need less for 61 frames but enough to scrub
+        reduced ? "h-auto" : "h-[220vh] sm:h-[240vh] md:h-[260vh]",
         className
       )}
     >
-      {/* Soft handoff from Hero → camera (shadow fade, not a hard line) */}
+      {/* Soft fades into adjacent sections */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 z-[3] h-28 bg-gradient-to-b from-void via-void/70 to-transparent md:h-40"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[3] h-24 bg-gradient-to-b from-void via-void/70 to-transparent md:h-32"
       />
-      {/* Soft handoff into Films */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-16 bg-gradient-to-t from-void via-void/75 to-transparent sm:h-24 md:h-36"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-24 bg-gradient-to-t from-void via-void/75 to-transparent md:h-32"
       />
 
+      {/* Full-viewport sticky stage (joshmojica pattern) — no top-aligned dead space */}
       <div
         className={cn(
-          "relative z-[2] flex flex-col items-center px-5",
+          "relative z-[2] w-full overflow-hidden bg-void",
           reduced
-            ? "py-6"
-            : "sticky top-14 justify-start pt-1 pb-3 sm:top-16 sm:pt-2 sm:pb-6 md:top-[4.5rem] md:pt-3 md:pb-8"
+            ? "flex items-center justify-center px-5 py-12"
+            : "sticky top-0 flex h-[100svh] items-center justify-center px-5"
         )}
       >
-        <div className="relative z-[2] w-full max-w-[min(96vw,40rem)] sm:max-w-[min(94vw,48rem)] md:max-w-[56rem]">
+        <div className="relative w-full max-w-[min(94vw,28rem)] sm:max-w-[min(90vw,40rem)] md:max-w-[48rem]">
           <div className="relative aspect-[5/3] w-full sm:aspect-[16/9]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
