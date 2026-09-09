@@ -23,7 +23,7 @@ export function Hero({
     <section className="grain relative overflow-hidden">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-16 bg-gradient-to-t from-void/80 to-transparent md:h-24"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-20 bg-gradient-to-t from-void via-void/70 to-transparent sm:h-28"
       />
       {/* One restrained pool of light behind the frame */}
       <div

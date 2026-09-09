@@ -13,9 +13,10 @@ function frameSrc(i: number) {
 }
 
 /**
- * Scroll-scrub camera between Hero and Films.
- * Layout mirrors joshmojica.io ScrollSequence: tall track + sticky full-viewport
- * stage, canvas frame paint. Camera stays contain-fit (keyed subject).
+ * Scroll-scrubbed camera between Hero and Films.
+ * Sticky full-viewport stage with a LARGE camera (fills phones — no tiny
+ * product in a sea of black) + tall enough track so the full 61-frame turn
+ * is visible. Soft seam fades into Hero / Films.
  */
 export function CameraScroll({ className }: { className?: string }) {
   const reduced = useReducedMotion();
@@ -66,7 +67,10 @@ export function CameraScroll({ className }: { className?: string }) {
     }
     if (!frame?.complete || frame.naturalWidth === 0) return;
 
-    const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
+    const dpr = Math.min(
+      typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
+      2
+    );
     const cssW = canvas.clientWidth || frame.naturalWidth;
     const cssH = canvas.clientHeight || frame.naturalHeight;
     const pxW = Math.max(1, Math.round(cssW * dpr));
@@ -81,7 +85,6 @@ export function CameraScroll({ className }: { className?: string }) {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    // contain-fit — keep the full keyed camera visible
     const scale = Math.min(pxW / frame.naturalWidth, pxH / frame.naturalHeight);
     const dw = frame.naturalWidth * scale;
     const dh = frame.naturalHeight * scale;
@@ -195,32 +198,31 @@ export function CameraScroll({ className }: { className?: string }) {
       aria-label="Camera showcase"
       className={cn(
         "relative bg-void",
-        // joshmojica uses ~300vh; we need less for 61 frames but enough to scrub
-        reduced ? "h-auto" : "h-[220vh] sm:h-[240vh] md:h-[260vh]",
+        // Enough scroll distance to see the full turn, then Films
+        reduced ? "h-auto py-10" : "h-[200svh] sm:h-[220svh] md:h-[240svh]",
         className
       )}
     >
-      {/* Soft fades into adjacent sections */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 z-[3] h-24 bg-gradient-to-b from-void via-void/70 to-transparent md:h-32"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[3] h-16 bg-gradient-to-b from-void via-void/65 to-transparent sm:h-24"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-24 bg-gradient-to-t from-void via-void/75 to-transparent md:h-32"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-20 bg-gradient-to-t from-void via-void/70 to-transparent sm:h-28"
       />
 
-      {/* Full-viewport sticky stage (joshmojica pattern) — no top-aligned dead space */}
       <div
         className={cn(
           "relative z-[2] w-full overflow-hidden bg-void",
           reduced
-            ? "flex items-center justify-center px-5 py-12"
-            : "sticky top-0 flex h-[100svh] items-center justify-center px-5"
+            ? "flex items-center justify-center px-3 py-8"
+            : "sticky top-0 flex h-[100svh] items-center justify-center px-3 sm:px-5"
         )}
       >
-        <div className="relative w-full max-w-[min(94vw,28rem)] sm:max-w-[min(90vw,40rem)] md:max-w-[48rem]">
-          <div className="relative aspect-[5/3] w-full sm:aspect-[16/9]">
+        {/* Large stage: camera fills most of the phone screen */}
+        <div className="relative flex h-[min(78svh,34rem)] w-full max-w-[min(100%,40rem)] items-center justify-center sm:h-[min(72svh,28rem)] sm:max-w-[min(92vw,44rem)] md:h-auto md:max-w-[52rem] md:aspect-[16/9]">
+          <div className="relative h-full w-full md:absolute md:inset-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={POSTER_SRC}

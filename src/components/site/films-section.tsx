@@ -20,11 +20,11 @@ export function FilmsSection({
 }) {
   const rest = typeof total === "number" && total > projects.length ? total : null;
   return (
-    <section id="work" className="relative scroll-mt-24 pb-20 pt-10 md:pb-28 md:pt-14">
+    <section id="work" className="relative scroll-mt-24 pb-20 pt-6 md:pb-28 md:pt-10">
       {/* Soft top shadow / fade from the camera section — keep this */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-20 z-[1] h-28 bg-gradient-to-b from-transparent via-void/50 to-void md:h-36"
+        className="pointer-events-none absolute inset-x-0 -top-16 z-[1] h-24 bg-gradient-to-b from-transparent via-void/55 to-void sm:h-32 sm:-top-20"
       />
       <div className="shell relative z-[2]">
         <SectionHead
