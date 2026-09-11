@@ -14,9 +14,11 @@ function frameSrc(i: number) {
 
 /**
  * Scroll-scrubbed camera between Hero and Films.
- * Sticky full-viewport stage with a LARGE camera (fills phones — no tiny
- * product in a sea of black) + tall enough track so the full 61-frame turn
- * is visible. Soft seam fades into Hero / Films.
+ * The sticky stage is exactly one viewport tall and the camera is centred in
+ * it, so the frame is never stranded at the top of a screen of black. The
+ * track is only as long as one full 61-frame turn needs. No seam gradients:
+ * hero, camera and films all sit on the same void, and the grain runs
+ * straight through, so any fade here would read as a shadow.
  */
 export function CameraScroll({ className }: { className?: string }) {
   const reduced = useReducedMotion();
@@ -197,31 +199,30 @@ export function CameraScroll({ className }: { className?: string }) {
       ref={trackRef}
       aria-label="Camera showcase"
       className={cn(
-        "relative bg-void",
-        // Sticky hugs the camera; track is only tall enough for a full scrub
-        reduced ? "h-auto py-10" : "h-[155svh] sm:h-[170svh] md:h-[185svh]",
+        "grain relative bg-void",
+        // Track = one screen of pin + the scroll the 61-frame turn needs
+        reduced ? "h-auto py-14" : "h-[165svh] md:h-[180svh]",
         className
       )}
     >
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 z-[3] h-16 bg-gradient-to-b from-void via-void/65 to-transparent sm:h-24"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-20 bg-gradient-to-t from-void via-void/70 to-transparent sm:h-28"
-      />
-
-      <div
         className={cn(
-          "relative z-[2] w-full overflow-hidden bg-void",
+          "relative z-[2] w-full",
           reduced
-            ? "flex items-center justify-center px-3 py-8"
-            : "sticky top-14 flex justify-center px-3 py-4 sm:top-16 sm:px-5 sm:py-5 md:top-[4.5rem] md:py-6"
+            ? "flex items-center justify-center px-4 py-8"
+            : "sticky top-0 flex h-svh items-center justify-center px-0 py-[max(3.5rem,9svh)] sm:px-6"
         )}
       >
-        {/* Content-sized stage — no full-viewport black void around the camera */}
-        <div className="relative aspect-[16/9] w-full max-w-[min(96vw,36rem)] sm:max-w-[min(92vw,42rem)] md:max-w-[48rem]">
+        {/* Stage fills the pinned screen; the canvas letterboxes the camera
+            inside it, so the frame lands dead centre at every size. */}
+        <div
+          className={cn(
+            "relative w-full",
+            reduced
+              ? "aspect-[16/9] max-w-[min(94vw,42rem)]"
+              : "h-full max-w-[min(100vw,60rem)]"
+          )}
+        >
           <div className="absolute inset-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
